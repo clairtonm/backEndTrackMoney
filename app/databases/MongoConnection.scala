@@ -1,27 +1,42 @@
 package databases
 
 import org.mongodb.scala._
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
+import play.api.Logger
 
 //TODO
 // - Try MongoCredentialSettings
 
 object MongoConnection extends App{
 
-  val conf = ConfigFactory.load()
-  val mongoConf = conf.getConfig("db.mongo")
+  def getMongoConnection: MongoClient = {
+    val conf: Config = ConfigFactory.load()
+    val mongoConf: Config = conf.getConfig("db.mongo")
 
-  def getMongoConnection(): Unit = {
-    val mongoURI = s"mongodb://${mongoConf.getString("username")}:" +
+    val mongoURI = s"mongodb+srv://${mongoConf.getString("username")}:" +
                              s"${mongoConf.getString("password")}@" +
                              s"${mongoConf.getString("url")}"
 
-    val mongoClient = MongoClient(mongoURI)
-
+    try {
+      println("Mongo Connected")
+      MongoClient(mongoURI)
+    } catch {
+      case e: Exception =>
+        println(s"Couldn't connect mongo: ${e.getMessage}")
+        throw e
+    }
   }
 
-  def getMongoDatabase(): Unit = {
-    ???
+  def getMongoDatabase(mongoClient: MongoClient, database: String): MongoDatabase = {
+    mongoClient.getDatabase(database)
+  }
+
+  def listDatabases(mongoClient: MongoClient): Unit = {
+    mongoClient.listDatabaseNames().subscribe((result: String) => println(result))
+  }
+
+  def closeConnection(mongoClient: MongoClient): Unit = {
+    mongoClient.close()
   }
 
 }

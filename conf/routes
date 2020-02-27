@@ -13,4 +13,4 @@ GET     /message                    controllers.AsyncController.message
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # TrackMoney Routes
-GET     /person                     controllers.HomeController.PersonInfo
+GET     /user                     controllers.HomeController.PersonInfo
